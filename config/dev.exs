@@ -15,9 +15,16 @@ config :daisy_ui, DaisyUiWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "XNa/8rWPFdhMWJG3kh/BJHpl8s1grHoMv5IbXDYouNyyQcupX0lcz+AptlKSTfqA",
   watchers: [
-    # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
+    npm: [
+      "run",
+      "watch.js",
+      cd: Path.expand("../assets", __DIR__)
+    ],
+    npm: [
+      "run",
+      "watch.css",
+      cd: Path.expand("../assets", __DIR__)
+    ]
   ]
 
 # ## SSL Support
