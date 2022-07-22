@@ -16,7 +16,8 @@ config :daisy_ui, DaisyUiWeb.Endpoint,
   secret_key_base: "XNa/8rWPFdhMWJG3kh/BJHpl8s1grHoMv5IbXDYouNyyQcupX0lcz+AptlKSTfqA",
   watchers: [
     # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
 
 # ## SSL Support
