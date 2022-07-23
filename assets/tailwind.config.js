@@ -39,7 +39,11 @@ module.exports = {
     ],
   },
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        headline: ["Saira Condensed", "System-ui"]
+      }
+    },
   },
   plugins: [
     require('@tailwindcss/forms'),
