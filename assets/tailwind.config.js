@@ -16,9 +16,9 @@ module.exports = {
         defdo_light: {
           "primary": "#F9BC02",
           "secondary": "#ff962b",
-          "accent": "#ED2088",
-          "neutral": "#C2C7D0",
-          "base-100": "#F9FAFA",
+          "accent": "#ff91af",
+          "neutral": "#1e1d35",
+          "base-100": "#FCFCFC",
           "info": "#38bdf8",
           "success": "#a3e635",
           "warning": "#fde047",
@@ -27,9 +27,9 @@ module.exports = {
         defdo_dark: {
           "primary": "#F9BC02",
           "secondary": "#ff962b",
-          "accent": "#ED2088",
-          "neutral": "#191929",
-          "base-100": "#1e1d35", // # 1b1e20
+          "accent": "#ff91af",
+          "neutral": "#1e1d35",
+          "base-100": "#32323C",
           "info": "#38bdf8",
           "success": "#a3e635",
           "warning": "#fde047",
@@ -42,7 +42,10 @@ module.exports = {
     extend: {
       fontFamily: {
         headline: ["Saira Condensed", "System-ui"]
-      }
+      },
+      screens: {
+        xs: '340px',
+      },
     },
   },
   plugins: [

@@ -98,6 +98,14 @@ defmodule DaisyUiWeb do
       import DaisyUiWeb.ErrorHelpers
       import DaisyUiWeb.Gettext
       alias DaisyUiWeb.Router.Helpers, as: Routes
+
+      # DaisyUI components
+      import DaisyUiWeb.Components.Actions
+      import DaisyUiWeb.Components.DataDisplay
+      import DaisyUiWeb.Components.DataInput
+      import DaisyUiWeb.Components.Layout
+      import DaisyUiWeb.Components.Mockup
+      import DaisyUiWeb.Components.Navigation
     end
   end
 
