@@ -4,10 +4,11 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     It give us the same menu
     """
     use Phoenix.Component
+    import DaisyUi, only: [clean: 2]
 
     attr :pretty, :boolean, default: true
     attr :active, :boolean, default: false
-
+    attr :type, :any, default: nil
     attr :class, :string,
       default: "",
       doc: """
@@ -41,8 +42,20 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       """
 
     def button(assigns) do
+      attrs = assigns
+      |> assigns_to_attributes()
+      |> clean([:pretty])
+
+      type = if assigns[:type] do
+        [type: assigns[:type]]
+      else
+        []
+      end
+
       ~H"""
-      <button class={"#{if @pretty, do: "btn "}#{if @active, do: "btn-active "}#{@class}"}><%= render_slot(@inner_block) %></button>
+      <button {type} class={"#{if @pretty, do: "btn "}#{if @active, do: "btn-active "}#{@class}"} {attrs}>
+        <%= render_slot(@inner_block) %>
+      </button>
       """
     end
 

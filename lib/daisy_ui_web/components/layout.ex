@@ -6,6 +6,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     use Phoenix.Component
 
     alias DaisyUiWeb.Components.DataDisplay
+    import String, only: [trim: 1]
 
     attr :orientation, :atom,
       default: :vertical,
@@ -108,14 +109,24 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       Allows to add classes to improve the drawer-content wrapper.
       """
 
+    attr :style_content, :string,
+      default: nil
+
     def drawer(assigns) do
+
+      styles = if assigns[:style_content] do
+        [style: assigns[:style_content]]
+      else
+        []
+      end
+
       ~H"""
-      <section class={"drawer #{if @position == :right, do: "drawer-end "}#{@class}"}>
+      <section class={trim("drawer #{if @position == :right, do: "drawer-end "}#{@class}")}>
         <input id={@drawer_id} type="checkbox" class="drawer-toggle" />
-        <div class={"drawer-content #{@class_content}"}>
+        <div class={trim("drawer-content #{@class_content}")} {styles}>
           <%= render_slot(@drawer_content) %>
         </div>
-        <div class="drawer-side">
+        <div class="drawer-side" {styles}>
           <label for={@drawer_id} class="drawer-overlay"></label>
           <%= render_slot(@drawer_sidebar) %>
         </div>
