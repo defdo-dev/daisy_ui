@@ -55,7 +55,14 @@ defmodule DaisyUi.MixProject do
   defp aliases do
     [
       setup: ["deps.get"],
-      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
+      "assets.deploy": ["assets.compile --quite", "phx.digest"],
+      "assets.compile": &compile_assets/1
     ]
+  end
+
+  defp compile_assets(_) do
+    Mix.shell().cmd("cd assets && ./node_modules/.bin/tailwind default --minify && ./node_modules/.bin/esbuild default --minify",
+      quiet: true
+    )
   end
 end
