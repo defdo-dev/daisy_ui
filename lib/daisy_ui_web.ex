@@ -99,13 +99,10 @@ defmodule DaisyUiWeb do
       import DaisyUiWeb.Gettext
       alias DaisyUiWeb.Router.Helpers, as: Routes
 
+      alias Phoenix.LiveView.JS
+
       # DaisyUI components
-      import DaisyUiWeb.Components.Actions
-      import DaisyUiWeb.Components.DataDisplay
-      import DaisyUiWeb.Components.DataInput
-      import DaisyUiWeb.Components.Layout
-      import DaisyUiWeb.Components.Mockup
-      import DaisyUiWeb.Components.Navigation
+      use DaisyUi
     end
   end
 
