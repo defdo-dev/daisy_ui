@@ -189,12 +189,19 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     """
     attr :class, :string, default: "", doc: """
     """
+    attr :options, :list, default: []
+    attr :prompt, :string, default: nil
+    attr :selected, :boolean, default: false
     def select(assigns) do
       assigns = Map.put(assigns, :class, "select #{assigns.class}")
-      {_, attrs} = Map.pop!(assigns, :inner_block)
+      attrs =
+        assigns
+        |> assigns_to_attributes()
+        |> Keyword.drop([:form, :field, :options])
+
       ~H"""
       <%= if @form && @field do %>
-        <%= select(@form, @field, attrs) %>
+        <%= select(@form, @field, @options, attrs) %>
       <% else %>
         <select {attrs}>
           <%= render_slot(@inner_block) %>

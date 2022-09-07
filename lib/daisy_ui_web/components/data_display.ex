@@ -459,9 +459,10 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       """
 
     def table(assigns) do
+      attrs = assigns_to_attributes(assigns)
       ~H"""
       <div class={@class_container}>
-        <table class={"table #{@class}"}>
+        <table class={"table #{@class}"} {attrs}>
           <%= render_slot(@inner_block) %>
         </table>
       </div>
@@ -471,8 +472,9 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     attr :class, :string, default: ""
 
     def thead(assigns) do
+      attrs = assigns_to_attributes(assigns)
       ~H"""
-      <thead class={@class}>
+      <thead class={@class} {attrs}>
         <%= render_slot(@inner_block) %>
       </thead>
       """
@@ -481,8 +483,9 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     attr :class, :string, default: ""
 
     def tbody(assigns) do
+      attrs = assigns_to_attributes(assigns)
       ~H"""
-      <tbody class={@class}>
+      <tbody class={@class} {attrs}>
         <%= render_slot(@inner_block) %>
       </tbody>
       """
@@ -491,8 +494,9 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     attr :class, :string, default: ""
 
     def tfoot(assigns) do
+      attrs = assigns_to_attributes(assigns)
       ~H"""
-      <tfoot class={@class}>
+      <tfoot class={@class} {attrs}>
         <%= render_slot(@inner_block) %>
       </tfoot>
       """
@@ -501,8 +505,9 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     attr :class, :string, default: ""
 
     def tr(assigns) do
+      attrs = assigns_to_attributes(assigns)
       ~H"""
-      <tr class={@class}>
+      <tr class={@class} {attrs}>
         <%= render_slot(@inner_block) %>
       </tr>
       """
@@ -511,16 +516,18 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     attr :class, :string, default: ""
 
     def th(assigns) do
+      attrs = assigns_to_attributes(assigns)
       ~H"""
-      <th class={@class}><%= render_slot(@inner_block) %></th>
+      <th class={@class} {attrs}><%= render_slot(@inner_block) %></th>
       """
     end
 
     attr :class, :string, default: ""
 
     def td(assigns) do
+      attrs = assigns_to_attributes(assigns)
       ~H"""
-      <td class={@class}><%= render_slot(@inner_block) %></td>
+      <td class={@class} {attrs}><%= render_slot(@inner_block) %></td>
       """
     end
 
