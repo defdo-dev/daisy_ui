@@ -2,6 +2,8 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
   defmodule DaisyUiWeb.Components.Actions do
     @moduledoc """
     It give us the same menu
+
+    We don't implement the modal because liveview provides one and daisy modal requires special treatment since it doesn't use javascript.
     """
     use Phoenix.Component
     import DaisyUi, only: [clean: 2]
@@ -59,8 +61,8 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       """
     end
 
-    attr :label, :string, default: []
-    attr :content, :string, default: []
+    attr :label, :any, default: []
+    attr :content, :any, default: []
     attr :type, :string, default: "menu"
 
     attr :class, :string,
@@ -89,10 +91,6 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
         </ul>
       </div>
       """
-    end
-
-    def modal(_assigns) do
-      raise "Not yet implemented"
     end
 
     attr :class, :string, default: ""

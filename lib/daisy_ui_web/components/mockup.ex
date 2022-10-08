@@ -11,6 +11,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Defines a code mockup, complements with `line/1` to give an editor view.
       """
+    slot :inner_block, required: true
 
     def code(assigns) do
       ~H"""
@@ -35,7 +36,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       """
     end
 
-    attr :orientation, :string,
+    attr :orientation, :atom,
       default: :vertical,
       doc: """
       The :orientation should be `:horizontal` or `:vertical`.
@@ -70,6 +71,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       Hint: You should override the border to keep a focus style
       add `border-primary` to discover it.
       """
+    slot :inner_block, required: true
 
     def mobile(assigns) do
       ~H"""
@@ -88,6 +90,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     end
 
     attr :class, :string, default: "relative w-full h-full"
+    slot :inner_block, required: true
 
     def screen(assigns) do
       ~H"""
@@ -111,6 +114,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Navigation slot, to add your custom block at notch.
       """
+    slot :inner_block, required: true
 
     def mobile_notch(assigns) do
       ~H"""
@@ -138,6 +142,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Allow to customize the window container
       """
+    slot :inner_block, required: true
 
     def window(assigns) do
       ~H"""

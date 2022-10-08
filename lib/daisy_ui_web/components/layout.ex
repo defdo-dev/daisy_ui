@@ -34,6 +34,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Add extra classes
       """
+    slot :inner_block, required: true
 
     def artboard(assigns) do
       orientation =
@@ -41,15 +42,16 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
           :horizontal -> "artboard-horizontal"
           :vertical -> "artboard-demo"
         end
+      assigns = Map.put(assigns, :orientation, orientation)
 
       ~H"""
-      <section class={"artboard #{orientation} #{@phone_type} #{@class}"}>
+      <section class={"artboard #{@orientation} #{@phone_type} #{@class}"}>
         <%= render_slot(@inner_block) %>
       </section>
       """
     end
 
-    attr :orientation, :string,
+    attr :orientation, :atom,
       default: :horizontal,
       doc: """
       The :orientation should be `:horizontal` or `:vertical`. other values always be `vertical`.
@@ -60,6 +62,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Add extra classes
       """
+    slot :inner_block, required: true
 
     def button_group(assigns) do
       ~H"""
@@ -69,7 +72,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       """
     end
 
-    attr :orientation, :string,
+    attr :orientation, :atom,
       default: :vertical,
       doc: """
       The :orientation should be `:horizontal` or `:vertical`. other values always be `vertical`.
@@ -80,6 +83,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Add extra classes
       """
+    slot :inner_block, required: true
 
     def divider(assigns) do
       ~H"""
@@ -111,7 +115,10 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
 
     attr :style_content, :string,
       default: nil
+    attr :drawer_id, :string
 
+    slot :drawer_content, required: true
+    slot :drawer_sidebar, required: true
     def drawer(assigns) do
 
       styles = if assigns[:style_content] do
@@ -119,14 +126,15 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       else
         []
       end
+      assigns = Map.put(assigns, :styles, styles)
 
       ~H"""
       <section class={trim("drawer #{if @position == :right, do: "drawer-end "}#{@class}")}>
         <input id={@drawer_id} type="checkbox" class="drawer-toggle" />
-        <div class={trim("drawer-content #{@class_content}")} {styles}>
+        <div class={trim("drawer-content #{@class_content}")} {@styles}>
           <%= render_slot(@drawer_content) %>
         </div>
-        <div class="drawer-side" {styles}>
+        <div class="drawer-side" {@styles}>
           <label for={@drawer_id} class="drawer-overlay"></label>
           <%= render_slot(@drawer_sidebar) %>
         </div>
@@ -144,6 +152,8 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       default: "bg-neutral text-neutral-content",
       doc: """
       """
+
+    slot :inner_block, required: true
 
     def footer(assigns) do
       ~H"""
@@ -163,15 +173,19 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
 
     attr :class, :string, default: ""
     attr :bg_url, :string, default: nil
+    slot :inner_block, required: true
 
     def hero(assigns) do
-      with_background =
+      assigns = assign_new(assigns, :with_background, fn ->
         if src = Map.get(assigns, :bg_url) do
-          "background-image: url(#{src})"
+          [style: "background-image: url(#{src})"]
+        else
+          []
         end
+      end)
 
       ~H"""
-      <div class={"hero #{@class}"} style={"#{with_background}"}>
+      <div class={"hero #{@class}"} {@with_background}>
         <%= render_slot(@inner_block) %>
       </div>
       """
@@ -186,6 +200,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     end
 
     attr :class, :string, default: ""
+    slot :inner_block, required: true
 
     def hero_content(assigns) do
       ~H"""
@@ -221,6 +236,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       The indicator renders a badge so keep that in mind if you want to change
       pass the appropriated badge classes to change the color
       """
+    slot :inner_block, required: true
 
     def indicator(assigns) do
       place_x =
@@ -236,10 +252,13 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
           :middle -> "toast-middle"
           :bottom -> "toast-bottom"
         end
+      assigns = assigns
+        |> Map.put(:place_x, place_x)
+        |> Map.put(:place_y, place_y)
 
       ~H"""
       <div class="indicator">
-        <DataDisplay.badge class={"indicator-item #{place_x} #{place_y} #{@class}"}>
+        <DataDisplay.badge class={"indicator-item #{@place_x} #{@place_y} #{@class}"}>
           <%= @label %>
         </DataDisplay.badge>
         <%= render_slot(@inner_block) %>
@@ -260,7 +279,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       | `xs`        | Modifier | Extra small size for input-group wrapper      |
       """
 
-    attr :orientation, :string,
+    attr :orientation, :atom,
       default: :horizontal,
       doc: """
       The :orientation should be `:horizontal` or `:vertical`. other values always be `horizontal`.
@@ -275,6 +294,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Customize the input group, given the following classes.
       """
+    slot :inner_block, required: true
 
     def input_group(assigns) do
       size =
@@ -285,9 +305,10 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
           :md -> "input-group-md"
           :lg -> "input-group-lg"
         end
+      assigns = Map.put(assigns, :size, size)
 
       ~H"""
-      <label class={"input-group #{size} #{if @orientation == :vertical, do: "input-group-vertical"} #{if @orientation == :vertical, do: "input-group-vertical"} #{@class}"}>
+      <label class={"input-group #{@size} #{if @orientation == :vertical, do: "input-group-vertical"} #{if @orientation == :vertical, do: "input-group-vertical"} #{@class}"}>
         <%= render_slot(@inner_block) %>
       </label>
       """
@@ -335,7 +356,8 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     end
 
     attr :class, :string, default: ""
-    @spec stack(map) :: Phoenix.LiveView.Rendered.t()
+    slot :inner_block, required: true
+    @spec stack(assigns :: map) :: Phoenix.LiveView.Rendered.t()
     def stack(assigns) do
       ~H"""
       <div class={"stack #{@class}"}>
@@ -363,6 +385,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       """
 
     attr :class, :string, default: ""
+    slot :inner_block, required: true
 
     def toast(assigns) do
       place_x =
@@ -379,8 +402,12 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
           :bottom -> "toast-bottom"
         end
 
+      assigns = assigns
+      |> Map.put(:place_x, place_x)
+      |> Map.put(:place_y, place_y)
+
       ~H"""
-      <div class={"toast #{place_x} #{place_y} #{@class}"}>
+      <div class={"toast #{@place_x} #{@place_y} #{@class}"}>
         <%= render_slot(@inner_block) %>
       </div>
       """

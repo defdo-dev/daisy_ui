@@ -70,6 +70,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       | badge-warning   | Responsive | badge with `warning` color               |
       | badge-error     | Responsive | badge with `error` color                 |
       """
+    slot :inner_block, required: false
 
     def badge(assigns) do
       ~H"""

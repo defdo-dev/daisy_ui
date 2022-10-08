@@ -24,7 +24,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Change the container styles
       """
-
+    slot :inner_block, required: true
     def breadcrumbs(assigns) do
       ~H"""
       <div class={"breadcrumbs text-sm #{@class}"}>
@@ -44,7 +44,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Change the container styles
       """
-
+    slot :inner_block, required: true
     def bottom_navigation(assigns) do
       ~H"""
       <div class={"btm-nav #{@class}"}>
@@ -79,26 +79,6 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       | framename | Opens the linked document in the named iframe                                   |
       """
 
-    attr :class, :string,
-      default: "",
-      doc: """
-      Change the container styles
-      """
-
-    def a(assigns) do
-      to =
-        case get_in(assigns, [:action]) do
-          :navigate -> [navigate: assigns.to]
-          :patch -> [patch: assigns.to]
-          _ -> [href: assigns.to, rel: "noopener noreferrer"]
-        end
-
-      ~H"""
-      <.link class={@class} {to} target={@target}>
-        <%= render_slot(@inner_block) %>
-      </.link>
-      """
-    end
 
     attr :entries, :list, required: true
 
@@ -107,6 +87,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Change the container styles
       """
+    slot :inner_block, required: true
 
     def menu(assigns) do
       ~H"""
@@ -125,6 +106,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Change the container styles
       """
+    slot :inner_block, required: true
 
     def menu_item(assigns) do
       ~H"""
@@ -137,7 +119,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Change the container styles
       """
-
+    slot :inner_block, required: true
     def navbar(assigns) do
       ~H"""
       <section class={"navbar #{@class}"}>
@@ -151,14 +133,14 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Change the container styles
       """
-
+    slot :inner_block, required: true
     def pagination(assigns) do
       ~H"""
       <nav class={"btn-group #{@class}"}><%= render_slot(@inner_block) %></nav>
       """
     end
 
-    attr :orientation, :string,
+    attr :orientation, :atom,
       default: :horizontal,
       doc: """
       The :orientation should be `:horizontal` or `:vertical`.
@@ -175,7 +157,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Change the container styles
       """
-
+    slot :inner_block, required: true
     def steps(assigns) do
       ~H"""
       <ul class={"steps #{if @orientation == :vertical, do: "steps-vertical "}#{@class}"}>
@@ -193,7 +175,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Change the container styles
       """
-
+    slot :inner_block, required: true
     def step(assigns) do
       ~H"""
       <li class={"step #{@class}"}><%= render_slot(@inner_block) %></li>
@@ -207,7 +189,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Change the container styles
       """
-
+    slot :inner_block, required: true
     def tabs(assigns) do
       ~H"""
       <section class={"tabs #{@class}"}>
@@ -222,18 +204,22 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       """
     end
 
-    attr :action, :atom, default: :patch
-    attr :to, :string, required: true
-
+    attr :to, :string,
+      doc: """
+      Patches the current LiveView.
+      The `handle_params` callback of the current LiveView will be invoked and the minimum content
+      will be sent over the wire, as any other LiveView diff.
+      """
     attr :class, :string,
       default: "",
       doc: """
       Change the container styles
       """
 
+    slot :inner_block, required: true
     def tab(assigns) do
       ~H"""
-      <.a class={"tab #{@class}"} action={@action} to={@to}><%= render_slot(@inner_block) %></.a>
+      <.link class={"tab #{@class}"} patch={@to}><%= render_slot(@inner_block) %></.link>
       """
     end
 

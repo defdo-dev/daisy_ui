@@ -33,9 +33,10 @@ defmodule DaisyUiWeb do
         root: "lib/daisy_ui_web/templates",
         namespace: DaisyUiWeb
 
+      use Phoenix.Component
       # Import convenience functions from controllers
       import Phoenix.Controller,
-        only: [get_flash: 1, get_flash: 2, view_module: 1, view_template: 1]
+        only: [get_csrf_token: 0, get_flash: 1, get_flash: 2, view_module: 1, view_template: 1]
 
       # Include shared imports and aliases for views
       unquote(view_helpers())
@@ -87,7 +88,10 @@ defmodule DaisyUiWeb do
   defp view_helpers do
     quote do
       # Use all HTML functionality (forms, tags, etc)
-      use Phoenix.HTML
+      import Phoenix.HTML
+      import Phoenix.HTML.Form
+
+      alias Phoenix.LiveView.JS
 
       # Import LiveView and .heex helpers (live_render, live_patch, <.form>, etc)
       import Phoenix.LiveView.Helpers
@@ -99,7 +103,6 @@ defmodule DaisyUiWeb do
       import DaisyUiWeb.Gettext
       alias DaisyUiWeb.Router.Helpers, as: Routes
 
-      alias Phoenix.LiveView.JS
 
       # DaisyUI components
       use DaisyUi
