@@ -11,6 +11,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Defines a code mockup, complements with `line/1` to give an editor view.
       """
+
     slot :inner_block, required: true
 
     def code(assigns) do
@@ -71,6 +72,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       Hint: You should override the border to keep a focus style
       add `border-primary` to discover it.
       """
+
     slot :inner_block, required: true
 
     def mobile(assigns) do
@@ -78,10 +80,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       <div class={"mockup-phone #{@class}"}>
         <div class="camera"></div>
         <div class="display">
-          <Layout.artboard
-            orientation={@orientation}
-            phone_type={@phone_type}
-            class={@class_content}>
+          <Layout.artboard orientation={@orientation} phone_type={@phone_type} class={@class_content}>
             <%= render_slot(@inner_block) %>
           </Layout.artboard>
         </div>
@@ -114,6 +113,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Navigation slot, to add your custom block at notch.
       """
+
     slot :inner_block, required: true
 
     def mobile_notch(assigns) do
@@ -123,17 +123,27 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
           <span><%= @brand_name %></span>
           <nav class="flex h-4 space-x-0.5 pr-6">
             <svg class="h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
-              <path fill="currentColor" d="M32 384c-17.67 0-32 14.3-32 31.1v64C0 497.7 14.33 512 31.1 512S64 497.7 64 480v-64.9c0-16.8-14.33-31.1-32-31.1zm128-96c-17.7 0-32 14.3-32 31.1v160c0 18.6 14.3 32.9 32 32.9s32-14.33 32-31.1V319.1c0-16.8-14.3-31.1-32-31.1zM416 96c-17.67 0-32 14.33-32 31.1V480c0 17.7 14.3 32 32 32s32-14.33 32-31.1V127.1c0-16.8-14.3-31.1-32-31.1zm-128 96c-17.7 0-32 14.3-32 31.1v256c0 18.6 14.3 32.9 32 32.9s32-14.33 32-31.1V223.1c0-16.8-14.3-31.1-32-31.1z"/>
+              <path
+                fill="currentColor"
+                d="M32 384c-17.67 0-32 14.3-32 31.1v64C0 497.7 14.33 512 31.1 512S64 497.7 64 480v-64.9c0-16.8-14.33-31.1-32-31.1zm128-96c-17.7 0-32 14.3-32 31.1v160c0 18.6 14.3 32.9 32 32.9s32-14.33 32-31.1V319.1c0-16.8-14.3-31.1-32-31.1zM416 96c-17.67 0-32 14.33-32 31.1V480c0 17.7 14.3 32 32 32s32-14.33 32-31.1V127.1c0-16.8-14.3-31.1-32-31.1zm-128 96c-17.7 0-32 14.3-32 31.1v256c0 18.6 14.3 32.9 32 32.9s32-14.33 32-31.1V223.1c0-16.8-14.3-31.1-32-31.1z"
+              />
             </svg>
-            <svg class="hidden xs:block h-4 m-[0.18rem]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
-              <path fill="currentColor" d="M96 192h352v128H96V192z"/>
-              <path fill="currentColor" d="M464 96c44.2 0 80 35.8 80 80v16c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32v16c0 44.2-35.8 80-80 80H80c-44.18 0-80-35.8-80-80V176c0-44.2 35.82-80 80-80h384zM64 336c0 8.8 7.16 16 16 16h384c8.8 0 16-7.2 16-16V176c0-8.8-7.2-16-16-16H80c-8.84 0-16 7.2-16 16v160z" style="opacity:.4"/>
+            <svg
+              class="hidden xs:block h-4 m-[0.18rem]"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 576 512"
+            >
+              <path fill="currentColor" d="M96 192h352v128H96V192z" />
+              <path
+                fill="currentColor"
+                d="M464 96c44.2 0 80 35.8 80 80v16c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32v16c0 44.2-35.8 80-80 80H80c-44.18 0-80-35.8-80-80V176c0-44.2 35.82-80 80-80h384zM64 336c0 8.8 7.16 16 16 16h384c8.8 0 16-7.2 16-16V176c0-8.8-7.2-16-16-16H80c-8.84 0-16 7.2-16 16v160z"
+                style="opacity:.4"
+              />
             </svg>
           </nav>
         </section>
 
         <%= render_slot(@inner_block) %>
-
       </header>
       """
     end
@@ -142,6 +152,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Allow to customize the window container
       """
+
     slot :inner_block, required: true
 
     def window(assigns) do

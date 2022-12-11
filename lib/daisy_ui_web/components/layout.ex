@@ -34,6 +34,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Add extra classes
       """
+
     slot :inner_block, required: true
 
     def artboard(assigns) do
@@ -42,6 +43,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
           :horizontal -> "artboard-horizontal"
           :vertical -> "artboard-demo"
         end
+
       assigns = Map.put(assigns, :orientation, orientation)
 
       ~H"""
@@ -62,6 +64,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Add extra classes
       """
+
     slot :inner_block, required: true
 
     def button_group(assigns) do
@@ -83,6 +86,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Add extra classes
       """
+
     slot :inner_block, required: true
 
     def divider(assigns) do
@@ -113,19 +117,20 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       Allows to add classes to improve the drawer-content wrapper.
       """
 
-    attr :style_content, :string,
-      default: nil
+    attr :style_content, :string, default: nil
     attr :drawer_id, :string
 
     slot :drawer_content, required: true
     slot :drawer_sidebar, required: true
-    def drawer(assigns) do
 
-      styles = if assigns[:style_content] do
-        [style: assigns[:style_content]]
-      else
-        []
-      end
+    def drawer(assigns) do
+      styles =
+        if assigns[:style_content] do
+          [style: assigns[:style_content]]
+        else
+          []
+        end
+
       assigns = Map.put(assigns, :styles, styles)
 
       ~H"""
@@ -176,13 +181,14 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     slot :inner_block, required: true
 
     def hero(assigns) do
-      assigns = assign_new(assigns, :with_background, fn ->
-        if src = Map.get(assigns, :bg_url) do
-          [style: "background-image: url(#{src})"]
-        else
-          []
-        end
-      end)
+      assigns =
+        assign_new(assigns, :with_background, fn ->
+          if src = Map.get(assigns, :bg_url) do
+            [style: "background-image: url(#{src})"]
+          else
+            []
+          end
+        end)
 
       ~H"""
       <div class={"hero #{@class}"} {@with_background}>
@@ -236,6 +242,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       The indicator renders a badge so keep that in mind if you want to change
       pass the appropriated badge classes to change the color
       """
+
     slot :inner_block, required: true
 
     def indicator(assigns) do
@@ -252,7 +259,9 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
           :middle -> "toast-middle"
           :bottom -> "toast-bottom"
         end
-      assigns = assigns
+
+      assigns =
+        assigns
         |> Map.put(:place_x, place_x)
         |> Map.put(:place_y, place_y)
 
@@ -294,6 +303,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Customize the input group, given the following classes.
       """
+
     slot :inner_block, required: true
 
     def input_group(assigns) do
@@ -305,6 +315,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
           :md -> "input-group-md"
           :lg -> "input-group-lg"
         end
+
       assigns = Map.put(assigns, :size, size)
 
       ~H"""
@@ -402,9 +413,10 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
           :bottom -> "toast-bottom"
         end
 
-      assigns = assigns
-      |> Map.put(:place_x, place_x)
-      |> Map.put(:place_y, place_y)
+      assigns =
+        assigns
+        |> Map.put(:place_x, place_x)
+        |> Map.put(:place_y, place_y)
 
       ~H"""
       <div class={"toast #{@place_x} #{@place_y} #{@class}"}>

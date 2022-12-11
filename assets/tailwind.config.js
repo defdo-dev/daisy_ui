@@ -41,7 +41,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        headline: ["Saira Condensed", "System-ui"]
+        headline: ["Saira Condensed", "System-ui"],
+        mono: ["JetBrains Mono"]
       },
       screens: {
         xs: '340px',

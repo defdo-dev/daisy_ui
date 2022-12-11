@@ -5,7 +5,7 @@ defmodule DaisyUiWeb.Router do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
-    plug :put_root_layout, {DaisyUiWeb.LayoutView, :root}
+    plug :put_root_layout, {DaisyUiWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -17,11 +17,6 @@ defmodule DaisyUiWeb.Router do
   scope "/", DaisyUiWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    get "/", PageController, :home
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", DaisyUiWeb do
-  #   pipe_through :api
-  # end
 end

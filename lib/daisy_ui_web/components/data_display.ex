@@ -4,8 +4,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     Data Display Components
     """
     use Phoenix.Component
-
-    attr :navigate, :list, default: []
+    import DaisyUiWeb.Gettext
 
     attr :class, :string,
       default: "",
@@ -20,22 +19,24 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       | alert-error   | Responsive | Alert with `error` color   |
       """
 
+    slot :navigate, required: false
+    slot :inner_block, required: true
+
     def alert(assigns) do
       ~H"""
       <div class={"alert #{@class}"}>
         <div>
           <%= render_slot(@inner_block) %>
         </div>
-        <%= if @navigate != [] do %>
-          <div class="flex-none">
-            <%= render_slot(@navigate) %>
-          </div>
-        <% end %>
+        <div :if={@navigate} class="flex-none">
+          <%= render_slot(@navigate) %>
+        </div>
       </div>
       """
     end
 
     attr :class, :string, default: ""
+    slot :inner_block, required: true
 
     def avatar(assigns) do
       ~H"""
@@ -70,16 +71,17 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       | badge-warning   | Responsive | badge with `warning` color               |
       | badge-error     | Responsive | badge with `error` color                 |
       """
+
     slot :inner_block, required: false
 
     def badge(assigns) do
       ~H"""
       <span class={"badge #{@class}"}>
-       <%= if @text do %>
-        <%= @text %>
-       <% else %>
-        <%= render_slot(@inner_block) %>
-       <% end %>
+        <%= if @text do %>
+          <%= @text %>
+        <% else %>
+          <%= render_slot(@inner_block) %>
+        <% end %>
       </span>
       """
     end
@@ -100,6 +102,8 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       | card-side     | Responsive | The image in <figure> will be on the side            |
       """
 
+    slot :inner_block, required: true
+
     def card(assigns) do
       ~H"""
       <section class={"card #{@class}"}>
@@ -119,7 +123,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
 
     def card_image(assigns) do
       ~H"""
-      <figure><img src={@src} alt={@alt} class={@class}></figure>
+      <figure><img src={@src} alt={@alt} class={@class} /></figure>
       """
     end
 
@@ -128,6 +132,8 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Component to render a block body for a card component.
       """
+
+    slot :inner_block, required: true
 
     def card_body(assigns) do
       ~H"""
@@ -144,6 +150,8 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       doc: """
       Component to render a block title for a card component.
       """
+
+    slot :inner_block, required: false
 
     def card_title(assigns) do
       ~H"""
@@ -163,6 +171,8 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       Component to render a block title for a card component.
       """
 
+    slot :inner_block, required: true
+
     def card_content(assigns) do
       ~H"""
       <%= render_slot(@inner_block) %>
@@ -175,6 +185,8 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       Component to render a block actions for a card component.
       """
 
+    slot :inner_block, required: true
+
     def card_actions(assigns) do
       ~H"""
       <nav class={"card-actions #{@class}"}>
@@ -184,6 +196,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     end
 
     attr :class, :string, default: "w-full"
+    slot :inner_block, required: true
 
     def carousel(assigns) do
       ~H"""
@@ -197,6 +210,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     attr :alt, :string, default: nil
     attr :image_class, :string, default: ""
     attr :class, :string, default: ""
+    slot :inner_block, required: false
 
     def carousel_item(assigns) do
       ~H"""
@@ -235,14 +249,19 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       Use Tailwind CSS `group` and `group-focus` utilities to apply style when parent div is focused
       """
 
+    slot :inner_block, required: true
+
     def collapse(assigns) do
-      with_focus =
-        if assigns.with_focus do
-          [tabindex: "0"]
-        end
+      assigns =
+        assigns
+        |> assign_new(:with_focus, fn ->
+          if assigns.with_focus do
+            [tabindex: "0"]
+          end
+        end)
 
       ~H"""
-      <div {with_focus} class={"collapse #{@class}"}>
+      <div {@with_focus} class={"collapse #{@class}"}>
         <%= if not @with_focus do %>
           <input type="checkbox" class="" />
         <% end %>
@@ -258,6 +277,8 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       the tailwind `group-focus` to customize the parent style.
       """
 
+    slot :inner_block, required: true
+
     def collapse_title(assigns) do
       ~H"""
       <div class={"collapse-title #{@class}"}>
@@ -272,6 +293,8 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       If you apply the tailwind `group` to the `collapse` component, you should use
       the tailwind `group-focus` to customize the parent style.
       """
+
+    slot :inner_block, required: true
 
     def collapse_content(assigns) do
       ~H"""
@@ -357,10 +380,15 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       use label to customize
       """
 
+    slot :inner_block, required: false
+
     @spec radial_progress(map) :: Phoenix.LiveView.Rendered.t()
     def radial_progress(assigns) do
       ~H"""
-      <div class={"radial-progress #{@class}"} style={"--value:#{@value}; #{if @size, do: "--size: #{@size};"} #{if @thickness, do: "--thickness: #{@thickness};"}"}>
+      <div
+        class={"radial-progress #{@class}"}
+        style={"--value:#{@value}; #{if @size, do: "--size: #{@size};"} #{if @thickness, do: "--thickness: #{@thickness};"}"}
+      >
         <%= if @label do %>
           <%= @label %>
         <% else %>
@@ -388,6 +416,8 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       classes `stats-horizontal` or `stats-vertical` within the responsive prefix.
       """
 
+    slot :inner_block, required: true
+
     def stats(assigns) do
       ~H"""
       <div class={"stats #{if @orientation == :vertical, do: "stats-vertical"} #{@class}"}>
@@ -398,6 +428,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
 
     attr :class, :string, default: ""
     attr :figure, :any, default: []
+    slot :inner_block, required: true
 
     def stat(assigns) do
       ~H"""
@@ -408,6 +439,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     end
 
     attr :class, :string, default: ""
+    slot :inner_block, required: true
 
     def stat_figure(assigns) do
       ~H"""
@@ -418,6 +450,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     end
 
     attr :class, :string, default: ""
+    slot :inner_block, required: true
 
     def stat_title(assigns) do
       ~H"""
@@ -428,6 +461,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     end
 
     attr :class, :string, default: ""
+    slot :inner_block, required: true
 
     def stat_value(assigns) do
       ~H"""
@@ -438,6 +472,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     end
 
     attr :class, :string, default: ""
+    slot :inner_block, required: true
 
     def stat_desc(assigns) do
       ~H"""
@@ -447,117 +482,117 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       """
     end
 
-    attr :class_container, :string,
-      default: "overflow-x-auto",
-      doc: """
-      Overrides the container class
-      """
+    @doc ~S"""
+    Renders a table with generic styling.
 
-    attr :class, :string,
-      default: "w-full",
-      doc: """
-      Apply classes to the the table tag.
-      """
+    ## Examples
+
+        <.table id="users" rows={@users}>
+          <:col :let={user} label="id"><%= user.id %></:col>
+          <:col :let={user} label="username"><%= user.username %></:col>
+        </.table>
+    """
+    attr :id, :string, required: true
+    attr :row_click, :any, default: nil
+    attr :rows, :list, required: true
+    attr :modifier, :string, default: "", values: ["", "zebra"]
+    attr :responsive, :string, default: "normal", values: ["normal", "compact"]
+    attr :status_modifier, :string, default: "", values: ["", "active", "hover"]
+    attr :class, :string, default: ""
+
+    slot :col, required: true do
+      attr :label, :string
+    end
+
+    slot :action, doc: "the slot for showing user actions in the last table column"
 
     def table(assigns) do
-      attrs = assigns_to_attributes(assigns)
       ~H"""
-      <div class={@class_container}>
-        <table class={"table #{@class}"} {attrs}>
-          <%= render_slot(@inner_block) %>
+      <div id={@id} class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
+        <table class={"table #{table_modifier(@modifier)} #{table_responsive(@responsive)} #{@class}"}>
+          <thead class="text-[0.8125rem]">
+            <tr>
+              <th :for={col <- @col}><%= col[:label] %></th>
+              <th><span class="sr-only"><%= gettext("Actions") %></span></th>
+            </tr>
+          </thead>
+          <tbody class="text-sm">
+            <tr :for={row <- @rows} id={"#{@id}-#{row_id(row)}"} class={"#{@status_modifier}"}>
+              <td
+                :for={{col, i} <- Enum.with_index(@col)}
+                phx-click={@row_click && @row_click.(row)}
+                class={["", @row_click && "hover:cursor-pointer"]}
+              >
+                <div :if={i == 0}>
+                  <span class="absolute h-full w-4 top-0 -left-4 sm:rounded-l-xl" />
+                  <span class="absolute h-full w-4 top-0 -right-4 sm:rounded-r-xl" />
+                </div>
+                <div class="block">
+                  <span class={["relative", i == 0 && "font-semibold"]}>
+                    <%= render_slot(col, row) %>
+                  </span>
+                </div>
+              </td>
+              <td :if={@action != []}>
+                <div class="relative whitespace-nowrap text-center text-sm font-medium">
+                  <span :for={action <- @action} class="relative font-semibold">
+                    <%= render_slot(action, row) %>
+                  </span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
         </table>
       </div>
       """
     end
 
-    attr :class, :string, default: ""
+    defp row_id(row) when is_map(row) do
+      cond do
+        is_map_key(row, "id") ->
+          Map.get(row, "id")
 
-    def thead(assigns) do
-      attrs = assigns_to_attributes(assigns)
-      ~H"""
-      <thead class={@class} {attrs}>
-        <%= render_slot(@inner_block) %>
-      </thead>
-      """
+        is_map_key(row, :id) ->
+          Map.get(row, :id)
+
+        true ->
+          Enum.random(1..999_999)
+      end
     end
 
-    attr :class, :string, default: ""
-
-    def tbody(assigns) do
-      attrs = assigns_to_attributes(assigns)
-      ~H"""
-      <tbody class={@class} {attrs}>
-        <%= render_slot(@inner_block) %>
-      </tbody>
-      """
-    end
-
-    attr :class, :string, default: ""
-
-    def tfoot(assigns) do
-      attrs = assigns_to_attributes(assigns)
-      ~H"""
-      <tfoot class={@class} {attrs}>
-        <%= render_slot(@inner_block) %>
-      </tfoot>
-      """
-    end
-
-    attr :class, :string, default: ""
-
-    def tr(assigns) do
-      attrs = assigns_to_attributes(assigns)
-      ~H"""
-      <tr class={@class} {attrs}>
-        <%= render_slot(@inner_block) %>
-      </tr>
-      """
-    end
-
-    attr :class, :string, default: ""
-
-    def th(assigns) do
-      attrs = assigns_to_attributes(assigns)
-      ~H"""
-      <th class={@class} {attrs}><%= render_slot(@inner_block) %></th>
-      """
-    end
-
-    attr :class, :string, default: ""
-
-    def td(assigns) do
-      attrs = assigns_to_attributes(assigns)
-      ~H"""
-      <td class={@class} {attrs}><%= render_slot(@inner_block) %></td>
-      """
-    end
-
-    attr :position, :atom,
-      default: :top,
-      doc: """
-      Available positions:
-
-      `:top` (default)
-      `:right`
-      `:bottom`
-      `:left`
-      """
+    defp table_modifier("zebra"), do: "table-zebra"
+    defp table_modifier(_), do: ""
+    defp table_responsive("compact"), do: "table-compact"
+    defp table_responsive(_), do: "table-normal"
 
     attr :open, :boolean, default: false
     attr :tip, :string, default: ""
-    attr :class, :string, default: ""
+
+    attr :class, :string,
+      default: nil,
+      doc: """
+      Available modifiers:
+
+      | Class name        | Type     | Details                           |
+      |-------------------|----------|-----------------------------------|
+      | tooltip-top       | Modifier | Put tooltip on top                |
+      | tooltip-bottom    | Modifier | Put tooltip on bottom             |
+      | tooltip-left      | Modifier | Put tooltip on left               |
+      | tooltip-right     | Modifier | Put tooltip on right              |
+      | tooltip-primary   | Modifier | Adds `primary` color to tooltip   |
+      | tooltip-secondary | Modifier | Adds `secondary` color to tooltip |
+      | tooltip-accent    | Modifier | Adds `accent` color to tooltip    |
+      | tooltip-info      | Modifier | Adds `info` color to tooltip      |
+      | tooltip-success   | Modifier | Adds `success` color to tooltip   |
+      | tooltip-warning   | Modifier | Adds `warning` color to tooltip   |
+      | tooltip-error     | Modifier | Adds `error` color to tooltip     |
+      """
+
+    slot :inner_block, required: true
 
     def tooltip(assigns) do
-      position =
-        case assigns.position do
-          :top -> "tooltip-top"
-          :right -> "tooltip-right"
-          :bottom -> "tooltip-bottom"
-          :left -> "tooltip-left"
-        end
-
       ~H"""
-      <div class={"tooltip #{position} #{if @open, do: "tooltip-open"}"} data-tip={@tip}>
+      <div class={"tooltip #{@class} #{if @open, do: "tooltip-open"}"} data-tip={@tip}>
         <%= render_slot(@inner_block) %>
       </div>
       """

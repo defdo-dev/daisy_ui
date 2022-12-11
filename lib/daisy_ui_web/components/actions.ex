@@ -6,13 +6,22 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     We don't implement the modal because liveview provides one and daisy modal requires special treatment since it doesn't use javascript.
     """
     use Phoenix.Component
-    import DaisyUi, only: [clean: 2]
 
+    @doc """
+    Renders a button.
+
+    ## Examples
+
+        <.button>Send!</.button>
+        <.button phx-click="go" class="ml-2">Send!</.button>
+    """
+    attr :type, :string, default: nil
+    attr :rest, :global, include: ~w(disabled form name value)
     attr :pretty, :boolean, default: true
     attr :active, :boolean, default: false
-    attr :type, :any, default: nil
+
     attr :class, :string,
-      default: "",
+      default: nil,
       doc: """
       The default class is `btn`, you should add a modifier from the following table:
 
@@ -43,26 +52,26 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       | `btn-square`   | Responsive | Square button with a 1:1 ratio         |
       """
 
+    slot :inner_block, required: true
+
     def button(assigns) do
-      attrs = assigns
-      |> assigns_to_attributes()
-      |> clean([:pretty])
-
-      type = if assigns[:type] do
-        [type: assigns[:type]]
-      else
-        []
-      end
-
       ~H"""
-      <button {type} class={"#{if @pretty, do: "btn "}#{if @active, do: "btn-active "}#{@class}"} {attrs}>
+      <button
+        type={@type}
+        class={[
+          if(@pretty, do: "btn "),
+          if(@active, do: "btn-active "),
+          "phx-submit-loading:opacity-75 ",
+          "text-sm font-semibold leading-6 text-white active:text-white/80",
+          @class
+        ]}
+        {@rest}
+      >
         <%= render_slot(@inner_block) %>
       </button>
       """
     end
 
-    attr :label, :any, default: []
-    attr :content, :any, default: []
     attr :type, :string, default: "menu"
 
     attr :class, :string,
@@ -81,6 +90,8 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       """
 
     attr :class_items, :string, default: "p-2 shadow bg-base-100 rounded-box w-52"
+    slot :label, required: true
+    slot :content, required: true
 
     def dropdown(assigns) do
       ~H"""
@@ -93,23 +104,30 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
       """
     end
 
-    attr :class, :string, default: ""
+    attr :class, :string, default: nil
+
+    slot :on, doc: "Slot for on"
+    slot :off, doc: "Slot for off"
 
     def swap(assigns) do
       ~H"""
       <label class={"swap #{@class}"}>
         <input type="checkbox" />
-        <%= render_slot(@on_block) %>
-        <%= render_slot(@off_block) %>
+        <%= render_slot(@on) %>
+        <%= render_slot(@off) %>
       </label>
       """
     end
+
+    slot :inner_block, required: true
 
     def swap_on(assigns) do
       ~H"""
       <div class="swap-on"><%= render_slot(@inner_block) %></div>
       """
     end
+
+    slot :inner_block, required: true
 
     def swap_off(assigns) do
       ~H"""
