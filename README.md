@@ -24,7 +24,7 @@ mix esbuild.install --if-missing
 
 To configure your theme, add the following to your tailwind.js file. Your theme config should look similar to this:
 
-```
+```js
 {
   content: [
     './js/**/*.js',

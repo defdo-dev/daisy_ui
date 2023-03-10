@@ -2,7 +2,7 @@
 
 - Starts with phoenix 1.7.1 support.
 - Updated Readme
-
+- Add License and attributions
 
 ## 0.1.0
 
