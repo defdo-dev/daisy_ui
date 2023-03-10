@@ -1,63 +1,28 @@
-# DaisyUi
+# Daisy UI
 
-Hey this is a wrapper and currently we do not support a way to have the motor to work online with your assets, you must add the daisy ui motor on your project, here the instructions. 
+`daisy_ui` is a dependency for Daisy UI that makes it easy to add pre-designed UI components to your Elixir-Phoenix application. Daisy UI is built on top of the Tailwind CSS framework, which provides a powerful set of utilities for styling your app.
 
-> It works with LiveView 1.18+ it is because it supports the `attr` macro on components.
+Installing Daisy UI in your project can be a bit challenging, but we've found a solution that allows you to use it without `daisy_ui` as a dependency. This became possible after the release of {tailwind: "~> 0.1.10"}.
 
-## Instruction to install daisy UI
+Through experimentation, we discovered that we could build tailwind-cli with the DaisyUI plugin embedded, which solves the hardest part of the installation. In addition, the tailwind Elixir dependency supports arbitrary downloads, which makes it possible to install the wrappers around Daisy UI and turn them into functional components easily.
 
-### if you are coming from a fresh install (esbuild dependency)
+By following our installation process, you can add Daisy UI to your Elixir-Phoenix application and benefit from the pre-designed UI components without the dependency on `daisy_ui`.
 
-from `mix.exs` remove esbuild dependency, also if you have tailwind dependency remove it.
-from `config.exs` remove their configurations.
+## Instruction to install `daisy_ui`
 
-In `dev.exs` update the Endpoint.watchers node, lo listen the npm executables.
-
-```elixir
-  watchers: [
-    npm: [
-      "run",
-      "watch.js",
-      cd: Path.expand("../assets", __DIR__)
-    ],
-    npm: [
-      "run",
-      "watch.css",
-      cd: Path.expand("../assets", __DIR__)
-    ]
-  ]
+```bash
+mix tailwind.install 'https://storage.defdo.de/tailwind_cli_daisyui/v$version/tailwindcss-$target'
 ```
 
-The previous snipped is a way to configure, where watch.{js,css} definitions, are a declared script into the `package.json` file.
+then esbuild
 
-Here is where all your js code is sourced, and using the `esbuild.js` you are able to control de generated output and preserve the result at `priv/static` where is used by phoenix to listen the assets when is running on server mode.
+```bash
+mix esbuild.install --if-missing
+```
 
-We must install the following npm packages.
+> 10-March-23 binary downloaded with latest available tailwind 3.2.7 version and daisy-ui 2.51.3;
 
-`npm i -D esbuild esbuild-copy-static-files`
-
-> Remember you should use the `esbuild.js` from this repository.
-
-Continue with daisy setup.
-
-
-### if you are coming from an installation with npm.
-
-You are almost ready just continue with daisy setup.
-
-
-### Daisy UI setup
-
-A pre-requisite is tailwind to install it we also install 
-
-`npm i -D tailwindcss postcss autoprefixer @tailwindcss/typography`
-
-> There are know issues with @tailwindcss/forms since daisy ui implements their own css strategy if you really want to continue be sure your strategy is set as 'class' and patch any detected issue via css overrides
-
-
-Install the npm package `npm i -D daisyui`.
-
-add to your `tailwind.js` you theme config should looks similar to
+To configure your theme, add the following to your tailwind.js file. Your theme config should look similar to this:
 
 ```
 {
@@ -69,23 +34,12 @@ add to your `tailwind.js` you theme config should looks similar to
   daisyui: {
     themes: [
       {
-        defdo_light: {
-          "primary": "#F9BC02",
-          "secondary": "#ff962b",
-          "accent": "#ff91af",
-          "neutral": "#1e1d35",
-          "base-100": "#FCFCFC",
-          "info": "#9ad4f4",
-          "success": "#a3e635",
-          "warning": "#fde047",
-          "error": "#f32c3f",
-        },
         defdo_dark: {
           "primary": "#F9BC02",
-          "secondary": "#ff962b",
+          "secondary": "#330054",
           "accent": "#ff91af",
-          "neutral": "#1e1d35",
-          "base-100": "#32323C",
+          "neutral": "#f4efea",
+          "base-100": "#140021",
           "info": "#9ad4f4",
           "success": "#a3e635",
           "warning": "#fde047",
@@ -98,33 +52,54 @@ add to your `tailwind.js` you theme config should looks similar to
   plugins: [
     require("@tailwindcss/typography"),
     require("daisyui"),
+    // Embeds Hero Icons (https://heroicons.com) into your app.css bundle
+    // See `Components.Core.icon/1` for more information.
+    plugin(function ({ matchComponents, theme }) {
+      let iconsDir = path.join(__dirname, "../priv/hero_icons/optimized")
+      let values = {}
+      let icons = [
+        ["", "/24/outline"],
+        ["-solid", "/24/solid"],
+        ["-mini", "/20/solid"]
+      ]
+      icons.forEach(([suffix, dir]) => {
+        fs.readdirSync(path.join(iconsDir, dir)).map(file => {
+          let name = path.basename(file, ".svg") + suffix
+          values[name] = { name, fullPath: path.join(iconsDir, dir, file) }
+        })
+      })
+      matchComponents({
+        "hero": ({ name, fullPath }) => {
+          let content = fs.readFileSync(fullPath).toString().replace(/\r?\n|\r/g, "")
+          return {
+            [`--hero-${name}`]: `url('data:image/svg+xml;utf8,${content}')`,
+            "-webkit-mask": `var(--hero-${name})`,
+            "mask": `var(--hero-${name})`,
+            "background-color": "currentColor",
+            "vertical-align": "middle",
+            "display": "inline-block",
+            "width": theme("spacing.5"),
+            "height": theme("spacing.5")
+          }
+        }
+      }, { values })
+    })
   ]
 }
 ```
 
-Feel free to open a PR or wait for new updates.
+To use the icon function component in your Elixir-Phoenix application, you'll need to have the hero plugin installed as specified in the tailwind.config.js file. However, if you're using Phoenix version 1.7.1 or later, you don't need to manually add the hero plugin as it is already included.
+
+If you encounter any issues or want to contribute to the project, feel free to open a pull request or wait for new updates.
 
 Happy coding.
 
-To start your Phoenix server:
+## Libraries and Licenses
 
-  * Install dependencies with `mix deps.get`
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+This project uses the following third-party libraries:
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+- [tailwindcss](https://github.com/tailwindlabs/tailwindcss) - Licensed under the MIT License
+- [daisyUI](https://github.com/saadeghi/daisyuia) - Licensed under the MIT License
+- [Phoenix Framework](https://github.com/phoenixframework/phoenix) - Licensed under the MIT License
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
-
-## Learn more
-
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
-
-## to use custom tailwind + npm follow the next steps.
-
-```bash
-npm install -D tailwindcss postcss autoprefixer @tailwindcss/forms @tailwindcss/typography daisyui esbuild esbuild-copy-static-files
-```
+For more information about these licenses, please see the LICENSE files in the respective library directories.
