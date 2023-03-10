@@ -33,16 +33,17 @@ defmodule DaisyUi.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7.0"},
-      {:phoenix_html, "~> 3.0"},
+      {:phoenix, "~> 1.7.1"},
+      {:phoenix_html, "~> 3.3"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.18.3"},
+      {:phoenix_live_view, "~> 0.18.16"},
       {:floki, ">= 0.30.0", only: :test},
+      {:esbuild, "~> 0.5", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.1.10", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
-      {:gettext, "~> 0.18"},
+      {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
-      {:heroicons, "~> 0.5"},
       {:plug_cowboy, "~> 2.5"}
     ]
   end
@@ -55,16 +56,10 @@ defmodule DaisyUi.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get"],
-      "assets.deploy": ["assets.compile --quite", "phx.digest"],
-      "assets.compile": &compile_assets/1
+      setup: ["deps.get", "assets.setup"],
+      "assets.setup": ["tailwind.install 'https://storage.defdo.de/tailwind_cli_daisyui/v$version/tailwindcss-$target'", "esbuild.install --if-missing"],
+      "assets.build": ["tailwind default", "esbuild default"],
+      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
     ]
-  end
-
-  defp compile_assets(_) do
-    Mix.shell().cmd(
-      "cd assets && ./node_modules/.bin/tailwind default --minify && ./node_modules/.bin/esbuild default --minify",
-      quiet: true
-    )
   end
 end

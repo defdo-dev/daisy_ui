@@ -6,8 +6,7 @@ defmodule DaisyUiWeb.Components.Core do
   See the [Tailwind CSS documentation](https://tailwindcss.com) to learn how to
   customize the generated components in this module.
 
-  Icons are provided by [heroicons](https://heroicons.com), using the
-  [heroicons_elixir](https://github.com/mveytsman/heroicons_elixir) project.
+  Icons are provided by [heroicons](https://heroicons.com). See `icon/1` for usage.
   """
   use Phoenix.Component
 
@@ -75,7 +74,7 @@ defmodule DaisyUiWeb.Components.Core do
                   class="-m-3 flex-none p-3 opacity-20 hover:opacity-40"
                   aria-label={gettext("close")}
                 >
-                  <Heroicons.x_mark solid class="h-5 w-5 stroke-current" />
+                  <.icon name="hero-x-mark-solid" class="w-5 h-5 stroke-current" />
                 </button>
               </div>
               <div id={"#{@id}-content"}>
@@ -83,7 +82,11 @@ defmodule DaisyUiWeb.Components.Core do
                   <h1 id={"#{@id}-title"} class="text-lg font-semibold leading-8 text-zinc-800">
                     <%= render_slot(@title) %>
                   </h1>
-                  <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600">
+                  <p
+                    :if={@subtitle != []}
+                    id={"#{@id}-description"}
+                    class="mt-2 text-sm leading-6 "
+                  >
                     <%= render_slot(@subtitle) %>
                   </p>
                 </header>
@@ -139,7 +142,7 @@ defmodule DaisyUiWeb.Components.Core do
       :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
       id={@id}
       phx-mounted={@autoshow && show("##{@id}")}
-      phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("#flash")}
+      phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
       class={[
         "fixed hidden top-2 right-2 w-80 sm:w-96 z-50 rounded-lg p-3 shadow-md shadow-zinc-900/5 ring-1",
@@ -149,8 +152,8 @@ defmodule DaisyUiWeb.Components.Core do
       {@rest}
     >
       <p :if={@title} class="flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-6">
-        <Heroicons.information_circle :if={@kind == :info} mini class="h-4 w-4" />
-        <Heroicons.exclamation_circle :if={@kind == :error} mini class="h-4 w-4" />
+        <.icon :if={@kind == :info} name="hero-information-circle-mini" class="w-4 h-4" />
+        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="w-4 h-4" />
         <%= @title %>
       </p>
       <p class="mt-2 text-[0.8125rem] leading-5"><%= msg %></p>
@@ -160,9 +163,33 @@ defmodule DaisyUiWeb.Components.Core do
         class="group absolute top-2 right-1 p-2"
         aria-label={gettext("close")}
       >
-        <Heroicons.x_mark solid class="h-5 w-5 stroke-current opacity-40 group-hover:opacity-70" />
+        <.icon name="hero-x-mark-solid" class="w-5 h-5 opacity-40 group-hover:opacity-70" />
       </button>
     </div>
+    """
+  end
+
+  @doc """
+  Shows the flash group with standard titles and content.
+  ## Examples
+      <.flash_group flash={@flash} />
+  """
+  attr :flash, :map, required: true, doc: "the map of flash messages"
+  def flash_group(assigns) do
+    ~H"""
+    <.flash kind={:info} title="Success!" flash={@flash} />
+    <.flash kind={:error} title="Error!" flash={@flash} />
+    <.flash
+      id="disconnected"
+      kind={:error}
+      title={gettext("We can't find the internet")}
+      close={false}
+      autoshow={false}
+      phx-disconnected={show("#disconnected")}
+      phx-connected={hide("#disconnected")}
+    >
+      Attempting to reconnect <.icon name="hero-arrow-path" class="ml-1 w-3 h-3 animate-spin" />
+    </.flash>
     """
   end
 
@@ -171,15 +198,15 @@ defmodule DaisyUiWeb.Components.Core do
 
   ## Examples
 
-      <.simple_form :let={f} for={:user} phx-change="validate" phx-submit="save">
-        <.input field={{f, :email}} label="Email"/>
-        <.input field={{f, :username}} label="Username" />
+      <.simple_form for={@form} phx-change="validate" phx-submit="save">
+        <.input field={@form[:email]} label="Email"/>
+        <.input field={@form[:username]} label="Username" />
         <:actions>
-          <.button>Save</.button>
+          <.core_button>Save</.core_button>
         </:actions>
       </.simple_form>
   """
-  attr :for, :any, default: nil, doc: "the datastructure for the form"
+  attr :for, :any, required: true, doc: "the datastructure for the form"
   attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
 
   attr :rest, :global,
@@ -192,13 +219,213 @@ defmodule DaisyUiWeb.Components.Core do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="space-y-8 bg-white mt-10">
+      <div class="grid max-w-lg space-y-4 bg-neutral/10 rounded-box px-2 pb-4">
         <%= render_slot(@inner_block, f) %>
-        <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
+        <div :for={action <- @actions} class="flex items-center justify-between gap-6">
           <%= render_slot(action, f) %>
         </div>
       </div>
     </.form>
+    """
+  end
+
+  @doc """
+  Renders a button.
+
+  ## Examples
+
+      <.core_button>Send!</.core_button>
+      <.core_button phx-click="go" class="ml-2">Send!</.core_button>
+  """
+  attr :type, :string, default: nil
+  attr :class, :string, default: nil
+  attr :rest, :global, include: ~w(disabled form name value)
+
+  slot :inner_block, required: true
+
+  def core_button(assigns) do
+    ~H"""
+    <button
+      type={@type}
+      class={[
+        "btn",
+        "text-sm font-semibold leading-6 text-base active:text-base/80",
+        @class
+      ]}
+      {@rest}
+    >
+      <%= render_slot(@inner_block) %>
+    </button>
+    """
+  end
+
+  @doc """
+  Renders an input with label and error messages.
+
+  A `%Phoenix.HTML.Form{}` and field name may be passed to the input
+  to build input names and error messages, or all the attributes and
+  errors may be passed explicitly.
+
+  ## Examples
+
+      <.core_input field={@form[:email]} type="email" />
+      <.core_input name="my-input" errors={["oh no!"]} />
+  """
+  attr :id, :any, default: nil
+  attr :name, :any
+  attr :label, :string, default: nil
+  attr :value, :any
+  attr :class, :string, default: nil
+
+  attr :type, :string,
+    default: "text",
+    values: ~w(checkbox color date datetime-local email file hidden month number password
+               range radio search select tel text textarea time url week)
+
+  attr :field, Phoenix.HTML.FormField,
+    doc: "a form field struct retrieved from the form, for example: @form[:email]"
+
+  attr :errors, :list, default: []
+  attr :checked, :boolean, doc: "the checked flag for checkbox inputs"
+  attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
+  attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
+  attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
+  attr :rest, :global, include: ~w(autocomplete cols disabled form max maxlength min minlength
+                                   pattern placeholder readonly required rows size step)
+  slot :inner_block
+
+  def core_input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
+    assigns
+    |> assign(field: nil, id: assigns.id || field.id)
+    |> assign(:errors, Enum.map(field.errors, &translate_error(&1)))
+    |> assign_new(:name, fn -> if assigns.multiple, do: field.name <> "[]", else: field.name end)
+    |> assign_new(:value, fn -> field.value end)
+    |> core_input()
+  end
+
+  def core_input(%{type: "checkbox", value: value} = assigns) do
+    assigns =
+      assign_new(assigns, :checked, fn -> Phoenix.HTML.Form.normalize_value("checkbox", value) end)
+
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <label class="flex items-center gap-4 text-sm leading-6">
+        <input type="hidden" name={@name} value="false" />
+        <input
+          type="checkbox"
+          id={@id || @name}
+          name={@name}
+          value="true"
+          checked={@checked}
+          class={["checkbox", @class]}
+          {@rest}
+        />
+        <%= @label %>
+      </label>
+      <.core_error :for={msg <- @errors}><%= msg %></.core_error>
+    </div>
+    """
+  end
+
+  def core_input(%{type: "select"} = assigns) do
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <.label for={@id}><%= @label %></.label>
+      <select
+        id={@id}
+        name={@name}
+        class={["select", @class]}
+        multiple={@multiple}
+        {@rest}
+      >
+        <option :if={@prompt} value=""><%= @prompt %></option>
+        <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
+      </select>
+      <.core_error :for={msg <- @errors}><%= msg %></.core_error>
+    </div>
+    """
+  end
+
+  def core_input(%{type: "textarea"} = assigns) do
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <.label for={@id}><%= @label %></.label>
+      <textarea
+        id={@id || @name}
+        name={@name}
+        class={[
+          "textarea",
+          @class,
+          @errors != [] && "textarea-error"
+        ]}
+        {@rest}
+      ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
+      <.core_error :for={msg <- @errors}><%= msg %></.core_error>
+    </div>
+    """
+  end
+
+  def core_input(%{type: "hidden"} = assigns) do
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <input
+        type={@type}
+        name={@name}
+        id={@id || @name}
+        value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+        {@rest}
+      />
+      <.core_error :for={msg <- @errors}><%= msg %></.core_error>
+    </div>
+    """
+  end
+
+  def core_input(assigns) do
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <.label for={@id}><%= @label %></.label>
+      <input
+        type={@type}
+        name={@name}
+        id={@id || @name}
+        value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+        class={[
+          "input w-full",
+          @class,
+          @errors != [] && "input-error"
+        ]}
+        {@rest}
+      />
+      <.core_error :for={msg <- @errors}><%= msg %></.core_error>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a label.
+  """
+  attr :for, :string, default: nil
+  slot :inner_block, required: true
+
+  def label(assigns) do
+    ~H"""
+    <label for={@for} class="label text-sm font-semibold leading-6">
+      <%= render_slot(@inner_block) %>
+    </label>
+    """
+  end
+
+  @doc """
+  Generates a generic error message.
+  """
+  slot :inner_block, required: true
+
+  def core_error(assigns) do
+    ~H"""
+    <p class="phx-no-feedback:hidden mt-3 flex gap-3 text-sm leading-6 text-rose-600">
+      <.icon name="hero-exclamation-circle-mini" class="mt-0.5 w-5 h-5 flex-none" />
+      <%= render_slot(@inner_block) %>
+    </p>
     """
   end
 
@@ -224,6 +451,82 @@ defmodule DaisyUiWeb.Components.Core do
       </div>
       <div class="flex-none"><%= render_slot(@actions) %></div>
     </header>
+    """
+  end
+
+  @doc ~S"""
+  Renders a table with generic styling.
+
+  ## Examples
+
+      <.core_table id="users" rows={@users}>
+        <:col :let={user} label="id"><%= user.id %></:col>
+        <:col :let={user} label="username"><%= user.username %></:col>
+      </.core_table>
+  """
+  attr :id, :string, required: true
+  attr :rows, :list, required: true
+  attr :row_id, :any, default: nil, doc: "the function for generating the row id"
+  attr :row_click, :any, default: nil, doc: "the function for handling phx-click on each row"
+
+  attr :row_item, :any,
+    default: &Function.identity/1,
+    doc: "the function for mapping each row before calling the :col and :action slots"
+
+  slot :col, required: true do
+    attr :label, :string
+  end
+
+  slot :action, doc: "the slot for showing user actions in the last table column"
+
+  def core_table(assigns) do
+    assigns =
+      with %{rows: %Phoenix.LiveView.LiveStream{}} <- assigns do
+        assign(assigns, row_id: assigns.row_id || fn {id, _item} -> id end)
+      end
+
+    ~H"""
+    <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
+      <table class="mt-11 w-[40rem] sm:w-full">
+        <thead class="text-left text-[0.8125rem] leading-6">
+          <tr>
+            <th :for={col <- @col} class="p-0 pb-4 pr-6 font-normal"><%= col[:label] %></th>
+            <th class="relative p-0 pb-4"><span class="sr-only"><%= gettext("Actions") %></span></th>
+          </tr>
+        </thead>
+        <tbody
+          id={@id}
+          phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
+          class="relative divide-y divide-primary/20 border-t border-primary/20 text-sm leading-6"
+        >
+          <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-accent/10">
+            <td
+              :for={{col, i} <- Enum.with_index(@col)}
+              phx-click={@row_click && @row_click.(row)}
+              class={["relative p-0", @row_click && "hover:cursor-pointer"]}
+            >
+              <div class="block py-4 pr-6">
+                <span class="absolute -inset-y-px right-0 group-hover:bg-accent/10 sm:rounded-l-xl" />
+                <span class={["relative", i == 0 && "font-semibold text-primary"]}>
+                  <%= render_slot(col, @row_item.(row)) %>
+                </span>
+              </div>
+            </td>
+            <td :if={@action != []} class="relative p-0 w-14">
+              <div class="relative whitespace-nowrap py-4 text-right text-sm font-medium">
+                <span class="absolute -inset-y-px -right-4 left-0 group-hover:bg-primary/10 sm:rounded-r-xl" />
+                <span
+                  :for={action <- @action}
+                  class="relative ml-4 font-semibold leading-6 text-accent/90 hover:text-accent"
+                >
+                  <%= render_slot(action, @row_item.(row)) %>
+                </span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     """
   end
 
@@ -271,10 +574,33 @@ defmodule DaisyUiWeb.Components.Core do
         navigate={@navigate}
         class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
       >
-        <Heroicons.arrow_left solid class="w-3 h-3 stroke-current inline" />
+        <.icon name="hero-exclamation-circle-mini" class="mt-0.5 w-5 h-5 flex-none" />
         <%= render_slot(@inner_block) %>
       </.link>
     </div>
+    """
+  end
+
+  @doc """
+  Renders a [Hero Icon](https://heroicons.com).
+  Hero icons come in three styles – outline, solid, and mini.
+  By default, the outline style is used, but solid an mini may
+  be applied by using the `-solid` and `-mini` suffix.
+  You can customize the size and colors of the icons by setting
+  width, height, and background color classes.
+  Icons are extracted from your `priv/hero_icons` directory and bundled
+  within your compiled app.css by the plugin in your `assets/tailwind.config.js`.
+  ## Examples
+      <.icon name="hero-cake" />
+      <.icon name="hero-cake-solid" />
+      <.icon name="hero-cake-mini" />
+      <.icon name="hero-bolt" class="bg-blue-500 w-10 h-10" />
+  """
+  attr :name, :string, required: true
+  attr :class, :string, default: nil
+  def icon(%{name: "hero-" <> _} = assigns) do
+    ~H"""
+    <span class={[@name, @class]} />
     """
   end
 
@@ -309,6 +635,7 @@ defmodule DaisyUiWeb.Components.Core do
       transition: {"transition-all transform ease-out duration-300", "opacity-0", "opacity-100"}
     )
     |> show("##{id}-container")
+    |> JS.add_class("overflow-hidden", to: "body")
     |> JS.focus_first(to: "##{id}-content")
   end
 
@@ -320,6 +647,64 @@ defmodule DaisyUiWeb.Components.Core do
     )
     |> hide("##{id}-container")
     |> JS.hide(to: "##{id}", transition: {"block", "block", "hidden"})
+    |> JS.remove_class("overflow-hidden", to: "body")
     |> JS.pop_focus()
+  end
+
+  @doc """
+  Translates an error message using gettext.
+  """
+  def translate_error({msg, opts}) do
+    # When using gettext, we typically pass the strings we want
+    # to translate as a static argument:
+    #
+    #     # Translate "is invalid" in the "errors" domain
+    #     dgettext("errors", "is invalid")
+    #
+    #     # Translate the number of files with plural rules
+    #     dngettext("errors", "1 file", "%{count} files", count)
+    #
+    # Because the error messages we show in our forms and APIs
+    # are defined inside Ecto, we need to translate them dynamically.
+    # This requires us to call the Gettext module passing our gettext
+    # backend as first argument.
+    #
+    # Note we use the "errors" domain, which means translations
+    # should be written to the errors.po file. The :count option is
+    # set by Ecto and indicates we should also apply plural rules.
+    if count = opts[:count] do
+      Gettext.dngettext(DaisyUiWeb.Gettext, "errors", msg, msg, count, opts)
+    else
+      Gettext.dgettext(DaisyUiWeb.Gettext, "errors", msg, opts)
+    end
+  end
+
+  @doc """
+  Translates the errors for a field from a keyword list of errors.
+  """
+  def translate_errors(errors, field) when is_list(errors) do
+    for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
+  end
+
+  attr :title, :string, default: nil, doc: "An optional title"
+  attr :data, :any, doc: "Supported data map"
+
+  def echo_component(assigns) do
+    ~H"""
+    <ul class="px-3 py-2 rounded-lg rounded-tr-none bg-base-300 text-base-content">
+      <%= if @title do %>
+        <li class="py-4 text-2xl capitalize text-medium"><%= @title %></li>
+      <% end %>
+
+      <%= if is_map(@data) do %>
+        <li class="overflow-x-auto">
+          <.core_table id="echo_table" rows={Map.keys(@data)}>
+            <:col :let={key} label="Key"><%= key %></:col>
+            <:col :let={key} label="Value"><%= inspect(Map.get(@data, key)) %></:col>
+          </.core_table>
+        </li>
+      <% end %>
+    </ul>
+    """
   end
 end

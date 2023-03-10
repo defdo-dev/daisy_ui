@@ -428,7 +428,7 @@ if Code.ensure_loaded?(Phoenix.LiveView) do
     def error(assigns) do
       ~H"""
       <p class="phx-no-feedback:hidden mt-1 flex gap-2 text-sm leading-6 text-error">
-        <Heroicons.exclamation_circle mini class="mt-0.5 h-5 w-5 flex-none fill-error/90" />
+         <DaisyUiWeb.Components.Core.icon name="hero-exclamation-circle-mini" class="mt-0.5 w-5 h-5 flex-none fill-error/90" />
         <%= render_slot(@inner_block) %>
       </p>
       """

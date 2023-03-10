@@ -21,7 +21,7 @@ defmodule DaisyUiWeb do
 
   def router do
     quote do
-      use Phoenix.Router, helpers: true
+      use Phoenix.Router, helpers: false
 
       # Import common connection and controller functions to use in pipelines
       import Plug.Conn
@@ -46,7 +46,8 @@ defmodule DaisyUiWeb do
 
       import Plug.Conn
       import DaisyUiWeb.Gettext
-      alias DaisyUiWeb.Router.Helpers, as: Routes
+
+      unquote(verified_routes())
     end
   end
 
@@ -84,19 +85,14 @@ defmodule DaisyUiWeb do
     quote do
       # HTML escaping functionality
       import Phoenix.HTML
-      # Import LiveView and .heex helpers (live_render, live_patch, <.form>, etc)
-      import Phoenix.Component
       # Core UI components and translation
-      import DaisyUiWeb.Components.Core
+      import DaisyUiWeb.Components.Core #- update this
       import DaisyUiWeb.Gettext
 
       # DaisyUI components
       use DaisyUi
 
       alias Phoenix.LiveView.JS
-
-      # import DaisyUiWeb.ErrorHelpers
-      alias DaisyUiWeb.Router.Helpers, as: Routes
 
       # Routes generation with the ~p sigil
       unquote(verified_routes())
