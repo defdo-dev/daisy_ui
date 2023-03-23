@@ -1,3 +1,7 @@
+## 0.2.1
+
+- Starts with phoenix 1.7.2 support.
+
 ## 0.2.0
 
 - Starts with phoenix 1.7.1 support.
