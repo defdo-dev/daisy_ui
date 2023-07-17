@@ -5,7 +5,7 @@ defmodule DaisyUi.MixProject do
   def project do
     [
       app: :daisy_ui,
-      version: "0.2.1",
+      version: "0.2.2-dev",
       elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,

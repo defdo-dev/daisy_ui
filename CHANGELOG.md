@@ -1,3 +1,9 @@
+## 0.2.2-dev
+
+### Bug fixes
+
+- Watchers modified
+
 ## 0.2.1
 
 - Starts with phoenix 1.7.2 support.
