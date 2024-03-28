@@ -53,7 +53,7 @@ node_modules/
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
-
+.vscode
 priv/static/assets
 
 # End of https://www.toptal.com/developers/gitignore/api/elixir,node,macos
